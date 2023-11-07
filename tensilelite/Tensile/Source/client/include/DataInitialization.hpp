@@ -78,9 +78,7 @@ namespace Tensile
         static bool IsProblemDependent(InitMode const& mode)
         {
             return mode == InitMode::SerialIdx || mode == InitMode::SerialDim0
-                   || mode == InitMode::SerialDim1 || mode == InitMode::Identity
-                   || mode == InitMode::TrigSin || mode == InitMode::TrigCos
-                   || mode == InitMode::TrigAbsSin || mode == InitMode::TrigAbsCos;
+                   || mode == InitMode::SerialDim1 || mode == InitMode::Identity;
         }
 
         std::string ToString(InitMode mode);
@@ -513,9 +511,17 @@ namespace Tensile
                 case InitMode::SerialDim1:
                 case InitMode::Identity:
                 case InitMode::TrigSin:
+                    initArrayTrig<T, false, false>(array, elements);
+                    break;
                 case InitMode::TrigCos:
+                    initArrayTrig<T, true, false>(array, elements);
+                    break;
                 case InitMode::TrigAbsSin:
+                    initArrayTrig<T, false, true>(array, elements);
+                    break;
                 case InitMode::TrigAbsCos:
+                    initArrayTrig<T, true, true>(array, elements);
+                    break;
                 case InitMode::Count:
                     throw std::runtime_error("Invalid InitMode.");
                 }
@@ -700,6 +706,16 @@ namespace Tensile
                     std::vector<size_t> coord(tensor.dimensions(), 0);
                     CoordNumbered(idx, coord.begin(), coord.end(), sizes.begin(), sizes.end());
                     array[tensor.index(coord)] = getTrigValue<T>(idx, useCos, useAbs);
+                }
+            }
+
+            template <typename T, bool useCos, bool useAbs>
+            void initArrayTrig(T* array, size_t elements)
+            {
+#pragma omp parallel for
+                for(size_t i = 0; i < elements; i++)
+                {
+                    array[i] = getTrigValue<T>(i, useCos, useAbs);
                 }
             }
 
