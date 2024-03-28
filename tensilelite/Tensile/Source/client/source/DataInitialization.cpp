@@ -1837,10 +1837,10 @@ namespace Tensile
             return result;
         }
 
-        int32_t getRotatingSize(ContractionProblemGemm const& problem,
+        int64_t getRotatingSize(ContractionProblemGemm const& problem,
                                 ContractionInputs const&      inputs)
         {
-            int32_t rotatingSize = 0;
+            int64_t rotatingSize = 0;
             if(inputs.a != nullptr)
             {
                 rotatingSize
@@ -1958,8 +1958,8 @@ namespace Tensile
             if(auto gemmProblem = dynamic_cast<ContractionProblemGemm const*>(problem))
             {
                 auto    castInputs   = static_pointer_cast<ContractionInputs>(inputs);
-                int32_t rotatingSize = getRotatingSize(*gemmProblem, *castInputs);
-                int32_t rotatingNum
+                int64_t rotatingSize = getRotatingSize(*gemmProblem, *castInputs);
+                int64_t rotatingNum
                     = min(maxRotatingBufferNum, ceil((float)m_rotatingBuffer / rotatingSize))
                       - 1; // Minus the original buffer.
                 int32_t totalRotatingSizeNeeded = rotatingNum * rotatingSize;
