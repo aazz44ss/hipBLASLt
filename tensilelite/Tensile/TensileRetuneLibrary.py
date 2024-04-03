@@ -31,7 +31,8 @@ from . import Common
 from .Common import globalParameters, print1, printWarning, ensurePath, assignGlobalParameters, \
                     pushWorkingPath, popWorkingPath, restoreDefaultGlobalParameters, HR
 from .Tensile import addCommonArguments, argUpdatedGlobalParameters
-from .SolutionStructs import ProblemSizes
+from .SolutionStructs import ProblemType, ProblemSizes, ActivationArgs, BiasTypeArgs, \
+        BiasDimArgs
 from . import __version__
 
 import argparse
@@ -66,10 +67,10 @@ def parseCurrentLibrary(libPath, sizePath):
 
     problemSizes = ProblemSizes(problemType, sizes)
 
-    return (libYaml, solutions, problemSizes)
+    return (libYaml, solutions, problemType, problemSizes)
 
 
-def runBenchmarking(solutions, problemSizes, outPath, update):
+def runBenchmarking(solutions, problemType, problemSizes, outPath, update):
     # TODO some copy-pasting from BenchmarkProblems.benchmarkProblemType
     # could use a refactor to elimate duplicated code
     ClientExecutable.getClientExecutable()
@@ -88,7 +89,7 @@ def runBenchmarking(solutions, problemSizes, outPath, update):
 
     pushWorkingPath(shortName)
     pushWorkingPath("source")
-    BenchmarkProblems.writeBenchmarkFiles(benchmarkDir, solutions, problemSizes , "", "", "", "", shortName, [])
+    BenchmarkProblems.writeBenchmarkFiles(benchmarkDir, solutions, problemSizes , BiasTypeArgs(problemType,"S"), BiasDimArgs(problemType,""), ActivationArgs(problemType, [[{"Enum": "none"}]]), "", shortName, [])
     popWorkingPath() # source
 
     libraryLogicPath = None
@@ -101,7 +102,7 @@ def runBenchmarking(solutions, problemSizes, outPath, update):
     # write solutions yaml file
     for sol in solutions:
         sol["ISA"] = list(sol["ISA"])
-    LibraryIO.writeSolutions(libraryFile, problemSizes, "", solutions)
+    LibraryIO.writeSolutions(libraryFile, problemSizes, BiasTypeArgs(problemType,"S"), ActivationArgs(problemType, [[{"Enum": "none"}]]), solutions, cache=False)
 
     popWorkingPath() # benchmark
 
@@ -168,8 +169,8 @@ def TensileRetuneLibrary(userArgs):
         Common.globalParameters[key] = value
 
     # parse library logic then setup and run benchmarks
-    (rawYaml, solutions, problemSizes) = parseCurrentLibrary(libPath, sizePath)
-    runBenchmarking(solutions, problemSizes, outPath, update)
+    (rawYaml, solutions, problemType, problemSizes) = parseCurrentLibrary(libPath, sizePath)
+    runBenchmarking(solutions, problemType, problemSizes, outPath, update)
 
     if remake:
         # write library logic file
