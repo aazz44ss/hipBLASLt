@@ -549,6 +549,8 @@ validParameters = {
     # Set to 0 to disable GSU, kernel code will be generated without GSU support
     "GlobalSplitU":               list(range(0, 1024+1)),
 
+    "LocalSplitU":                [1,2,4,8],
+
     # choose how to do GlobalSplitU
     # 1: use atomic operation to accumulate on one buffer
     # 2: each GSU group write to each own buffer and accumulate by another kernel
@@ -1205,6 +1207,7 @@ defaultBenchmarkCommonParameters = [
     {"GlobalSplitUAlgorithm":     [ "MultipleBuffer" ] },
     {"GlobalSplitUCoalesced":     [ False ] },
     {"GlobalSplitUWorkGroupMappingRoundRobin":     [ False ] },
+    {"LocalSplitU":               [ 1 ] },
     {"Use64bShadowLimit":         [ 1 ] },
     {"NumLoadsCoalescedA":        [ 1 ] },
     {"NumLoadsCoalescedB":        [ 1 ] },
