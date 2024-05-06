@@ -802,6 +802,9 @@ validParameters = {
     #   -> workgroups split up the summation -> faster GR but slower GW
     "GlobalSplitUWorkGroupMappingRoundRobin":        [False, True],
 
+    # Swizzle L1 Cache
+    "L1CacheSwizzle":        [True, False],
+
     # 0=don't use magic div (source only)
     # 1=magic div alg #1.  Slightly faster but limited range (if magic number is 2^32)
     # 2=magic div alg#2.  Slightly slower but handles all unsigned ints up to 2^32
@@ -1202,6 +1205,7 @@ defaultBenchmarkCommonParameters = [
     {"StaggerU":                  [ 32 ] },   # recommend [0,32]
     {"StaggerUStride":            [ 256 ] },  # recommend 256 for V10,V20
     {"StaggerUMapping":           [ 0 ] },    # recommend [0,1]
+    {"L1CacheSwizzle":            [ False ] },    # recommend [0,1]
     {"MagicDivAlg":               [ 2 ] },
     {"GlobalSplitU":              [ 1 ] },
     {"GlobalSplitUAlgorithm":     [ "MultipleBuffer" ] },

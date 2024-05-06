@@ -3156,6 +3156,10 @@ class KernelWriterAssembly(KernelWriter):
     #if tP["isB"]:
     #  module.add(self.getBomb(0x100))
     #return Module("graIncrements (Empty)") if self.dontAppendCode else module
+
+    if kernel["L1CacheSwizzle"]:
+      module.add(SOrB32(dst=sgpr("Srd%s+1"%tc), src0=sgpr("Srd%s+1"%tc), src1="0x40000000"))
+
     return Module("graIncrements (Empty)") if self.dontAppendCode else module
 
   ##############################################################################
