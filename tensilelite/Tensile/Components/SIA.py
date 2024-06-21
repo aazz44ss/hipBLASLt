@@ -822,12 +822,13 @@ def schedLocalWrite(writer, kernel, numLocalWriteModPerIter, numLocalWritesPerSc
                 # TODO - can schedule these writes across iters, should figure this out above
                 readsToWait = readsToWait - 1
                 readsToWaitNGLL = readsToWaitNGLL - 1
-                imod.add(SWaitCnt(lgkmcnt=-1, \
-                    vmcnt=min(maxVmcnt, readsToWait), vscnt=-1, \
-                    comment="wait for global read before writing to local"))
-                imodNGLL.add(SWaitCnt(lgkmcnt=-1, \
-                    vmcnt=min(maxVmcnt, readsToWaitNGLL), vscnt=-1, \
-                    comment="wait for global read before writing to local"))
+                if writer.do["Wait"]:
+                    imod.add(SWaitCnt(lgkmcnt=-1, \
+                        vmcnt=min(maxVmcnt, readsToWait), vscnt=-1, \
+                        comment="wait for global read before writing to local"))
+                    imodNGLL.add(SWaitCnt(lgkmcnt=-1, \
+                        vmcnt=min(maxVmcnt, readsToWaitNGLL), vscnt=-1, \
+                        comment="wait for global read before writing to local"))
             # PK and StoreCUnroll is removed so you cannot find any HolderContainer in s_waitcnt
             if kernel["PrefetchGlobalRead"]==2:
                 hasHolder, wcList = hasHolderInWaitCnt(item)
