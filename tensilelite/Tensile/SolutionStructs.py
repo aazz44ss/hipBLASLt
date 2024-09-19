@@ -1103,7 +1103,7 @@ class Solution(collections.abc.Mapping):
       self["AssignedDerivedParameters"] = False
 
     Solution.assignDerivedParameters(self._state)
-    self._name = config["CustomKernelName"] if isCustomKernelConfig(config) else None
+    self._name = config["CustomKernelName"]+"_"+str(config["StaggerU"])+"_"+str(config["StaggerUStride"])+"_"+str(config["StaggerUMapping"])+"_"+str(config["WorkGroupMapping"]) if isCustomKernelConfig(config) else None
     self.initHelperKernelObjects()
 
   # these keys are copied from ProblemType to internal that may be overridden
