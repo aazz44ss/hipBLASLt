@@ -377,9 +377,10 @@ namespace Tensile
                                         TensorDescriptor const& tensorMeta,
                                         size_t                  dim)
         {
-            T* cpuCompressed
-                = (T*)std::malloc(TypeInfo<T>::ElementSize * tensorC.totalAllocatedElements());
-            unsigned char* cpuMeta = (unsigned char*)std::malloc(tensorMeta.totalLogicalElements());
+            T* cpuCompressed       = nullptr;
+            unsigned char* cpuMeta = nullptr;
+            HIP_CHECK_EXC(hipHostMalloc(&cpuCompressed, TypeInfo<T>::ElementSize * tensorC.totalAllocatedElements(), 0));
+            HIP_CHECK_EXC(hipHostMalloc(&cpuMeta, tensorMeta.totalLogicalElements(), 0));
 
             std::memset((void*)cpuCompressed,
                         0,
@@ -396,8 +397,8 @@ namespace Tensile
                 dstMeta, cpuMeta, tensorMeta.totalLogicalElements(), hipMemcpyHostToDevice));
 
             // free temp cpu memory
-            std::free(cpuCompressed);
-            std::free(cpuMeta);
+            HIP_CHECK_EXC(hipHostFree(cpuCompressed));
+            HIP_CHECK_EXC(hipHostFree(cpuMeta));
         }
 
         void initGPUSparseInput(void*                   dstCompressed,
@@ -1039,8 +1040,9 @@ namespace Tensile
 
                     if(!pUnit.cpuInput.current)
                     {
-                        auto ptr
-                            = std::shared_ptr<void>(std::malloc(size), [](auto p) { free(p); });
+                        void* p  = nullptr;
+                        HIP_CHECK_EXC(hipHostMalloc(&p, size, 0));
+                        auto ptr = std::shared_ptr<void>(p, hipHostFree);
                         if(ptr == nullptr)
                         {
                             std::stringstream s;
@@ -1051,8 +1053,9 @@ namespace Tensile
                     }
                     if(!pUnit.cpuInput.valid)
                     {
-                        auto ptr
-                            = std::shared_ptr<void>(std::malloc(size), [](auto p) { free(p); });
+                        void* p  = nullptr;
+                        HIP_CHECK_EXC(hipHostMalloc(&p, size, 0));
+                        auto ptr = std::shared_ptr<void>(p, hipHostFree);
                         if(ptr == nullptr)
                         {
                             std::stringstream s;
@@ -1063,8 +1066,9 @@ namespace Tensile
                     }
                     if(!pUnit.cpuInput.bad && m_curBoundsCheck == BoundsCheckMode::NaN)
                     {
-                        auto ptr
-                            = std::shared_ptr<void>(std::malloc(size), [](auto p) { free(p); });
+                        void* p  = nullptr;
+                        HIP_CHECK_EXC(hipHostMalloc(&p, size, 0));
+                        auto ptr = std::shared_ptr<void>(p, hipHostFree);
                         if(ptr == nullptr)
                         {
                             std::stringstream s;

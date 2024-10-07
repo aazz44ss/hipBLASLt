@@ -29,6 +29,7 @@
 #include "Tensile/Debug.hpp"
 #include "Tensile/Utils.hpp"
 #include "TypedId.hpp"
+#include <Tensile/hip/HipUtils.hpp>
 
 #include <cstddef>
 #include <omp.h>
@@ -607,8 +608,7 @@ omp_set_num_threads(MAX_OMP_THREADS);
                && (problem.biasSrc() == ContractionProblemGemm::D))
             {
                 validationStrideGemm = 1;
-                ws                   = (Accumulator*)malloc(problem.d().totalAllocatedElements()
-                                          * sizeof(Accumulator));
+                HIP_CHECK_EXC(hipHostMalloc(&ws, problem.d().totalAllocatedElements() * sizeof(Accumulator), 0));
             }
             else
             {
@@ -1029,7 +1029,7 @@ omp_set_num_threads(MAX_OMP_THREADS);
                         biasTensor, d, ws, inputs, elementsToValidate, 1);
                     if(!msg.empty())
                     {
-                        free(ws);
+                        HIP_CHECK_EXC(hipHostFree(ws));
                         std::runtime_error(msg.c_str());
                     }
                 }
@@ -1059,7 +1059,7 @@ omp_set_num_threads(MAX_OMP_THREADS);
                                       + std::to_string(problem.biasSrc()) + ".";
                     throw std::runtime_error(msg.c_str());
                 }
-                free(ws);
+                HIP_CHECK_EXC(hipHostFree(ws));
             }
         }
 
